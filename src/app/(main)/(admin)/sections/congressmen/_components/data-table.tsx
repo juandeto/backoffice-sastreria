@@ -4,8 +4,6 @@
 import * as React from "react";
 
 import { Plus } from "lucide-react";
-import type { z } from "zod";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,9 +16,11 @@ import { DataTablePagination } from "../../../../../../components/data-table/dat
 import { DataTableViewOptions } from "../../../../../../components/data-table/data-table-view-options";
 import { withDndColumn } from "../../../../../../components/data-table/table-utils";
 import { dashboardColumns } from "./columns";
-import type { sectionSchema } from "./schema";
+import type { person } from "@/lib/db/schema";
 
-export function DataTable({ data: initialData }: { data: z.infer<typeof sectionSchema>[] }) {
+type PersonRow = typeof person.$inferSelect;
+
+export function DataTable({ data: initialData }: { data: PersonRow[] }) {
   const [data, setData] = React.useState(() => initialData);
   const columns = withDndColumn(dashboardColumns);
   const table = useDataTableInstance({ data, columns, getRowId: (row) => row.id.toString() });

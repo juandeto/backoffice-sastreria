@@ -44,46 +44,46 @@ export interface NavGroup {
 }
 
 export const sidebarItems: NavGroup[] = [
-  {
-    id: 1,
-    label: "Dashboards",
-    items: [
-      {
-        title: "CRM",
-        url: "/dashboard/crm",
-        icon: ChartBar,
-      },
-      {
-        title: "Finance",
-        url: "/dashboard/finance",
-        icon: Banknote,
-      },
-      {
-        title: "Analytics",
-        url: "/dashboard/coming-soon",
-        icon: Gauge,
-        comingSoon: true,
-      },
-      {
-        title: "E-commerce",
-        url: "/dashboard/coming-soon",
-        icon: ShoppingBag,
-        comingSoon: true,
-      },
-      {
-        title: "Academy",
-        url: "/dashboard/coming-soon",
-        icon: GraduationCap,
-        comingSoon: true,
-      },
-      {
-        title: "Logistics",
-        url: "/dashboard/coming-soon",
-        icon: Forklift,
-        comingSoon: true,
-      },
-    ],
-  },
+  // {
+  //   id: 1,
+  //   label: "Dashboards",
+  //   items: [
+  //     {
+  //       title: "CRM",
+  //       url: "/dashboard/crm",
+  //       icon: ChartBar,
+  //     },
+  //     {
+  //       title: "Finance",
+  //       url: "/dashboard/finance",
+  //       icon: Banknote,
+  //     },
+  //     {
+  //       title: "Analytics",
+  //       url: "/dashboard/coming-soon",
+  //       icon: Gauge,
+  //       comingSoon: true,
+  //     },
+  //     {
+  //       title: "E-commerce",
+  //       url: "/dashboard/coming-soon",
+  //       icon: ShoppingBag,
+  //       comingSoon: true,
+  //     },
+  //     {
+  //       title: "Academy",
+  //       url: "/dashboard/coming-soon",
+  //       icon: GraduationCap,
+  //       comingSoon: true,
+  //     },
+  //     {
+  //       title: "Logistics",
+  //       url: "/dashboard/coming-soon",
+  //       icon: Forklift,
+  //       comingSoon: true,
+  //     },
+  //   ],
+  // },
   {
     id: 2,
     label: "Secciones",

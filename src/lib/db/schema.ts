@@ -75,7 +75,7 @@ export const person = pgTable('person', {
   lastName: text('last_name').notNull(),
   birthDate: date('birth_date'),
   gender: text('gender'),
-  original_district: text('original_district'),
+  original_province: integer('original_province').references(() => province.provinceId),
   instagram: text('instagram'),
   facebook: text('facebook'),
   twitter: text('twitter'),
@@ -89,7 +89,7 @@ export const legislativeTerm = pgTable('legislative_term', {
     .notNull()
     .references(() => person.id),
   chamber: chamberEnum('chamber').notNull(),
-  district: text('district').notNull(),
+  province: integer('province').references(() => province.provinceId),
   startDate: date('start_date').notNull(),
   endDate: date('end_date'),
 });
@@ -179,8 +179,8 @@ export const politicalLeader = pgTable('political_leader', {
   role: text('role').notNull(),
   type_district: text('type_district'),
   name_district: text('name_district'),
+  province: integer('province').references(() => province.provinceId),
 });
-
 
 // Bills, Sessions, Votes
 
@@ -252,3 +252,16 @@ export const officialVotePreferenceRule = pgTable(
     choice: voteChoiceEnum('choice').notNull(),
   },
 );
+
+export const province = pgTable("province", {
+  provinceId: serial("province_id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  isoCode: varchar("iso_code", { length: 10 }).notNull().unique(),
+  region: varchar("region", { length: 100 }),
+  nationalDeputiesCount: integer("national_deputies_count"),
+  senatorsCount: integer("senators_count"),
+  senatorialGroup: integer("senatorial_group"),
+  isProvincialBicameral: boolean("is_provincial_bicameral").default(false),
+  hasLeyDeLemas: boolean("has_ley_de_lemas").default(false),
+  geojson: text("geojson"), // Usamos text o jsonb dependiendo de tu necesidad
+});

@@ -11,6 +11,11 @@ const nextConfig = {
         destination: "/dashboard/congressmen",
         permanent: false,
       },
+      {
+        source: "/sections",
+        destination: "/sections/congressmen",
+        permanent: false,
+      },
     ];
   },
 };

@@ -36,6 +36,13 @@
       "when": 1768784283556,
       "tag": "0004_round_rawhide_kid",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1768983046702,
+      "tag": "0005_rare_sphinx",
+      "breakpoints": true
     }
   ]
 }

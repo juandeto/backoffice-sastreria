@@ -1,0 +1,269 @@
+---
+alwaysApply: true
+description: 
+globs: **/*
+---
+
+# Code Quality
+
+## Standards
+
+- No `any` types (use `unknown` + type guards)
+- Strict TypeScript annotations
+- TRPCError for all errors
+- Zod validation for all inputs
+- Use structured logger (no direct console.*)
+- Remove code, don't deprecate
+- The app must not be allowed to crash, write defensive code and use try/catch if necessary
+- Remove redundant comments where the code is already self-descriptive
+
+## TypeScript
+
+```typescript
+// ✅ GOOD
+export async function getResource(db: DbClient, id: string): Promise<Resource> {
+  const resource = await db.resource.findFirst({ where: { id } });
+  if (!resource) throw new TRPCError({ code: "NOT_FOUND" });
+  return resource;
+}
+
+// ❌ BAD
+export async function getResource(db: any, id: any): Promise<any> {
+  return await db.resource.findFirst({ where: { id } });
+}
+```
+
+## tRPC Procedures
+
+```typescript
+// Use createApiProcedure with OpenAPI metadata
+export const resourcesRouter = createTRPCRouter({
+  create: createApiProcedure({
+    openapi: { method: "POST", path: "/resources", tags: ["Resources"], operationId: "createResource" },
+  })
+    .input(z.object({ name: z.string(), description: z.string().optional() }))
+    .output(z.object({ ok: z.boolean(), resource: resourceSchema.optional() }))
+    .mutation(async ({ ctx, input }) => {
+      // ctx.userId comes from AppConfiguration (loggedInUserId), not authentication
+      const resource = await ctx.db.resource.create({
+        data: { name: input.name, user_id: ctx.userId },
+      });
+      return { ok: true, resource };
+    }),
+});
+```
+
+**Checklist:** `createApiProcedure({ openapi: {...} })` → `.input()` → `.output()` → execute → return
+
+## Error Handling
+
+```typescript
+throw new TRPCError({ code: "UNAUTHORIZED", message: "not_authed" });
+throw new TRPCError({ code: "FORBIDDEN", message: "insufficient_permissions" });
+throw new TRPCError({ code: "NOT_FOUND", message: "resource_not_found" });
+throw new TRPCError({ code: "BAD_REQUEST", message: "invalid_input" });
+throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "operation_failed", cause });
+```
+
+## Zod Validation
+
+```typescript
+const resourceSchema = z.object({
+  name: z.string().min(1).max(80),
+  description: z.string().max(250).optional(),
+});
+
+export const resourcesRouter = createTRPCRouter({
+  // use protectedProcedure if application uses auth
+  create: publicProcedure.input(resourceSchema).mutation(async ({ ctx, input }) => {
+    return await ctx.db.resource.create({ data: { ...input, user_id: ctx.userId } });
+  }),
+});
+```
+
+### Do's and Don'ts
+
+#### Object Strictness
+
+| ❌ Don't | ✅ Do |
+|----------|-------|
+| `.passthrough()` | `z.looseObject({...})` |
+| `.strict()` | `z.strictObject({...})` |
+| `.nonstrict()` | `z.looseObject({...})` |
+
+#### Error Messages
+
+| ❌ Don't | ✅ Do |
+|----------|-------|
+| `{ message: "..." }` | `{ error: "..." }` |
+| `{ required_error: "..." }` | `{ error: (iss) => iss.input === undefined ? "..." : undefined }` |
+| `{ invalid_type_error: "..." }` | `{ error: (iss) => "..." }` |
+| `{ errorMap: (iss) => ({ message: "..." }) }` | `{ error: (iss) => "..." }` |
+
+#### Metadata
+
+| ❌ Don't | ✅ Do |
+|----------|-------|
+| `.describe("...")` | `.meta({ description: "..." })` |
+
+#### Unions & Intersections
+
+| ❌ Don't | ✅ Do |
+|----------|-------|
+| `a.or(b).or(c)` | `z.union([a, b, c])` |
+| `a.and(b).and(c)` | `z.intersection([a, b, c])` |
+
+#### Refinement
+
+| ❌ Don't | ✅ Do |
+|----------|-------|
+| `.superRefine(fn)` | `.check(fn)` |
+
+#### Arrays
+
+| ❌ Don't | ✅ Do |
+|----------|-------|
+| `.nonempty()` | `.min(1)` |
+
+#### String Formats
+
+| ❌ Don't | ✅ Do |
+|----------|-------|
+| `z.string().email()` | `z.email()` |
+| `z.string().uuid()` | `z.uuid()` |
+| `z.string().url()` | `z.url()` |
+| `z.string().cuid()` | `z.cuid()` |
+| `z.string().cuid2()` | `z.cuid2()` |
+| `z.string().ulid()` | `z.ulid()` |
+
+#### Factory Methods
+
+| ❌ Don't | ✅ Do |
+|----------|-------|
+| `z.object().create({...})` | `z.object({...})` |
+
+#### Literals
+
+| ❌ Don't | ✅ Do |
+|----------|-------|
+| `z.literal(Symbol(...))` | Use custom refinement or enum |
+
+---
+
+## New in Zod 4
+
+| Feature | API |
+|---------|-----|
+| Top-level string types | `z.email()`, `z.uuid()`, `z.url()`, `z.cuid()`, `z.cuid2()`, `z.ulid()`, `z.ipv4()`, `z.ipv6()` |
+| Numeric types | `z.int32()`, `z.int64()`, `z.uint32()`, `z.uint64()`, `z.float32()`, `z.float64()` |
+| File validation | `z.file()` |
+| JSON Schema | `schema.toJSONSchema()`, `z.fromJSONSchema(schema)` |
+| Typed metadata | `.meta({ custom: "data" })` |
+| Localization | `z.config(z.locales.ja())` |
+| Mini bundle | `import { z } from "zod/mini"` |
+| Custom check | `.check((val) => val.length > 5, { error: "Too short" })` |
+
+---
+
+## Object Schema Quick Reference
+
+| Behavior | Zod 4 API |
+|----------|-----------|
+| Strip unknown keys (default) | `z.object({...})` |
+| Allow unknown keys | `z.looseObject({...})` |
+| Error on unknown keys | `z.strictObject({...})` |
+
+## Server Components
+
+```typescript
+// Use tRPC server caller
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const resource = await api.resources.getById({ id });
+  return <div>{resource.name}</div>;
+}
+```
+
+## Client Components
+
+```typescript
+"use client";
+// Use tRPC React hooks
+export function Form() {
+  const create = api.resources.create.useMutation();
+  return <button onClick={() => create.mutate({ name: "test" })}>Create</button>;
+}
+```
+
+## Commits
+
+**Group commits thematically** when committing large batches of changes. Use conventional commit format.
+
+### Conventional Commit Types
+
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation changes
+- `chore:` - Maintenance (deps, config, tooling)
+- `refactor:` - Code refactoring
+- `test:` - Test changes
+- `style:` - Formatting, whitespace
+- `perf:` - Performance improvements
+
+### Grouping Strategy
+
+Group related changes into separate commits by theme:
+
+```bash
+# ✅ GOOD: Thematic grouping
+git add .rulesync/commands/debt-scan.md .rulesync/commands/onboard.md
+git commit -m "docs: update command documentation"
+
+git add .gitignore
+git commit -m "chore: ignore generated audit and QA reports"
+
+git add package.json pnpm-lock.yaml
+git commit -m "chore: update dependencies"
+
+# ❌ BAD: Single large commit
+git add -A
+git commit -m "fix: various updates"
+```
+
+**Grouping rules:**
+- Documentation → `docs:` commit
+- Dependencies → `chore:` commit (package.json + lockfile)
+- Configuration → `chore:` commit (.gitignore, config files)
+- Features → `feat:` commit (router + transformers + tests)
+- Related changes → Group together
+
+## Logging
+
+Use structured JSON logger. Direct `console.*` is prohibited in production code (ESLint enforced).
+
+```typescript
+import { logger } from "@/lib/logger";
+
+// ✅ GOOD: Structured logging
+logger.info("operation_complete", { userId: "abc-123" });
+logger.error("operation_failed", { error: error.message, stack: error.stack });
+
+// ✅ GOOD: Child logger for request context
+const reqLogger = logger.child({ path: "/api/v1/pages", method: "GET" });
+reqLogger.info("request", { statusCode: 200, durationMs: 45 });
+
+// ❌ BAD: Direct console (blocked by ESLint)
+console.log("Debug:", data);
+```
+
+**Levels:** `debug`, `info`, `warn`, `error`
+
+## Anti-Patterns
+
+**❌ Server Actions:** Use tRPC instead
+**❌ Skip validation:** Always validate with Zod
+**❌ Client for static:** Use Server Components by default
+**❌ `any` types:** Use proper types or `unknown`
+**❌ Direct console.*:** Use `logger` from `@/lib/logger`
+**❌ Large monolithic commits:** Group related changes thematically
+**❌ Generic commit messages:** Use descriptive conventional commit format

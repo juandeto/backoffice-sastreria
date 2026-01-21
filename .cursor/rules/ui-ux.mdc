@@ -1,0 +1,70 @@
+---
+alwaysApply: false
+description: UI/UX best practices and patterns
+---
+
+# UI/UX
+
+## Rules
+
+- Use shadcn/ui components
+- Tailwind CSS utility classes
+- CVA for component variants
+- Responsive: mobile (320px+), tablet (768px+), desktop (1024px+)
+- Semantic color tokens (no raw Tailwind colors)
+- Loading/error states required
+- 44x44px minimum touch targets
+
+## Components
+
+```typescript
+import { Button } from "@/components/Button";
+import { Badge } from "@/components/Badge";
+import { cn } from "@/lib/utils";
+
+export function UserCard({ user }: { user: User }) {
+  return (
+    <div className="flex items-center gap-3 p-4 bg-bg-primary border border-border-primary rounded-lg">
+      <Badge variant="secondary">{user.status}</Badge>
+      <Button size="sm">Action</Button>
+    </div>
+  );
+}
+```
+
+## Color Tokens
+
+```typescript
+// ✅ GOOD: Semantic tokens
+className="bg-bg-primary text-text-primary border-border-primary"
+
+// ❌ BAD: Raw Tailwind colors
+className="bg-gray-100 text-gray-900 border-gray-200"
+```
+
+## CVA Variants
+
+```typescript
+import { cva, type VariantProps } from "class-variance-authority";
+
+const buttonVariants = cva("base-classes", {
+  variants: {
+    variant: { default: "...", destructive: "..." },
+    size: { sm: "...", md: "..." },
+  },
+});
+
+export function Button({ variant, size, ...props }: VariantProps<typeof buttonVariants>) {
+  return <button className={cn(buttonVariants({ variant, size }))} {...props} />;
+}
+```
+
+## Loading States
+
+```typescript
+const query = api.resources.list.useQuery();
+
+if (query.isLoading) return <LoadingSpinner />;
+if (query.error) return <ErrorMessage error={query.error} />;
+return <ResourceList data={query.data} />;
+```

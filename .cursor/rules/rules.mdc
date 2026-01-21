@@ -1,0 +1,13 @@
+---
+alwaysApply: true
+description: 
+globs: **/*
+---
+
+When creating a new agent rule, project-specific information should be added to a new file in `.rulesync/rules/` without modifying existing rules. Avoid repetition and reorganize sections for clarity and flow. This includes subagent customizations for this particular repository.
+
+Subagent customizations that are general in nature should be made directly to `.rulesync/subagents/*.md`.
+
+When customizing rules and commands, do not repeat yourself. Prefer a single, well-considered and exact directive per concept.
+
+Do not cross-reference rules in other files; assume they are all loaded and available simultaneously.

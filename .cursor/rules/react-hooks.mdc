@@ -1,0 +1,248 @@
+---
+alwaysApply: false
+description: React hooks best practices and patterns
+---
+
+# React Hooks
+
+## React Compiler
+
+**React Compiler is enabled** in this project (Next.js 16). It automatically optimizes components with memoization and other performance improvements.
+
+**Benefits:**
+- Automatic memoization (no manual `useMemo`/`useCallback` needed)
+- Optimized re-renders
+- Works automatically - no code changes required
+
+**Requirements:**
+- Components must be pure (same inputs → same outputs)
+- Follow Rules of Hooks (top-level, same order)
+- No side effects during render
+
+## Rules
+
+- Components and hooks must be pure (same inputs → same outputs)
+- Only call hooks at top level (same order every render)
+- Avoid `useEffect` unless necessary (prefer event handlers, derived state)
+- Don't store derived state (compute during render)
+- Keep state local (minimize re-renders)
+- Use `use()` for promises/contexts (React 19)
+- Only memoize expensive computations or when passing to memoized children (React Compiler handles most cases)
+
+## Rules of Hooks
+
+**CRITICAL:** Hooks must be called in the same order every render.
+
+```typescript
+// ✅ GOOD: Top-level, unconditional
+function Component() {
+  const [count, setCount] = useState(0);
+  const user = use(fetchUser());
+  return <div>{count}</div>;
+}
+
+// ❌ BAD: Conditional hook call
+function Component({ showUser }) {
+  if (showUser) {
+    const user = use(fetchUser()); // ❌ Different order!
+  }
+  const [count, setCount] = useState(0);
+  return <div>{count}</div>;
+}
+
+// ✅ GOOD: Conditional logic inside hook
+function Component({ showUser }) {
+  const [count, setCount] = useState(0);
+  const user = showUser ? use(fetchUser()) : null; // ✅ Same order
+  return <div>{count}</div>;
+}
+```
+
+## Custom Hooks
+
+```typescript
+// ✅ GOOD: Simple, focused, pure
+function useUser(userId: string) {
+  const user = use(fetchUser(userId)); // React 19 use() hook
+  return {
+    user,
+    isAdmin: user.role === "admin", // Derived during render
+    displayName: user.name || user.email,
+  };
+}
+
+// ❌ BAD: Too many concerns, side effects
+function useUserData(userId: string) {
+  const user = use(fetchUser(userId));
+  const posts = use(fetchUserPosts(userId));
+  const comments = use(fetchUserComments(userId));
+  useEffect(() => {
+    trackUserView(userId); // Side effect in hook
+  }, [userId]);
+  return { user, posts, comments }; // Split into separate hooks
+}
+```
+
+## Derived State
+
+```typescript
+// ✅ GOOD: Compute during render (pure)
+function useCart(items: CartItem[]) {
+  const totalPrice = items.reduce((sum, item) => sum + item.price, 0);
+  const itemCount = items.length;
+  const isEmpty = itemCount === 0;
+  return { items, totalPrice, itemCount, isEmpty };
+}
+
+// ❌ BAD: Store derived state (unnecessary re-renders)
+function useCart(items: CartItem[]) {
+  const [totalPrice, setTotalPrice] = useState(0);
+  useEffect(() => {
+    setTotalPrice(items.reduce((sum, item) => sum + item.price, 0));
+  }, [items]);
+  return { items, totalPrice };
+}
+```
+
+## useState
+
+```typescript
+// ✅ GOOD: Lazy initializer for expensive computation
+const [data, setData] = useState(() => {
+  return expensiveComputation();
+});
+
+// ✅ GOOD: Function updater for state based on previous state
+setCount(prev => prev + 1);
+
+// ❌ BAD: Reading state immediately after setting
+setCount(count + 1);
+setOther(count); // ❌ Uses stale count
+```
+
+## useEffect
+
+**Avoid when possible.** Prefer:
+- Event handlers for user actions
+- Derived state for computed values
+- Server Components for data fetching
+
+```typescript
+// ❌ BAD: useEffect for derived state
+function Component({ items }) {
+  const [total, setTotal] = useState(0);
+  useEffect(() => {
+    setTotal(items.reduce((sum, item) => sum + item.price, 0));
+  }, [items]);
+  return <div>{total}</div>;
+}
+
+// ✅ GOOD: Compute during render
+function Component({ items }) {
+  const total = items.reduce((sum, item) => sum + item.price, 0);
+  return <div>{total}</div>;
+}
+
+// ✅ GOOD: useEffect for side effects (API calls, subscriptions)
+function Component({ userId }) {
+  useEffect(() => {
+    const subscription = subscribeToUser(userId);
+    return () => subscription.unsubscribe();
+  }, [userId]);
+  return <div>...</div>;
+}
+```
+
+## useMemo & useCallback
+
+**Only use for:**
+- Expensive computations
+- Passing callbacks to memoized children
+- Preventing object identity changes in dependencies
+
+```typescript
+// ❌ BAD: Unnecessary memoization
+function Component({ user }) {
+  const displayName = useMemo(() => user.name || user.email, [user]);
+  return <div>{displayName}</div>;
+}
+
+// ✅ GOOD: Simple computation during render
+function Component({ user }) {
+  const displayName = user.name || user.email;
+  return <div>{displayName}</div>;
+}
+
+// ✅ GOOD: Expensive computation
+function Component({ items }) {
+  const sortedItems = useMemo(() => {
+    return items.sort((a, b) => a.price - b.price);
+  }, [items]);
+  return <div>{sortedItems.map(...)}</div>;
+}
+
+// ✅ GOOD: Callback passed to memoized child
+const MemoizedChild = memo(Child);
+
+function Parent({ items }) {
+  const handleClick = useCallback(() => {
+    // Expensive operation
+  }, []);
+  return <MemoizedChild onClick={handleClick} />;
+}
+```
+
+## use() Hook (React 19)
+
+Use for promises and contexts:
+
+```typescript
+// ✅ GOOD: use() for promises
+function Component({ userId }) {
+  const user = use(fetchUser(userId)); // Suspends until resolved
+  return <div>{user.name}</div>;
+}
+
+// ✅ GOOD: use() for context
+function Component() {
+  const theme = use(ThemeContext);
+  return <div className={theme}>...</div>;
+}
+```
+
+## State Management
+
+- `useState` for simple state
+- `useReducer` for complex state logic
+- Context sparingly (global state only)
+- Keep state as local as possible
+- Prefer Server Components for data fetching
+
+## Purity
+
+**Components must be pure:**
+- Same inputs → same outputs
+- No side effects during render
+- Side effects belong in event handlers or useEffect
+
+```typescript
+// ✅ GOOD: Pure component
+function Component({ count }) {
+  const doubled = count * 2; // Pure computation
+  return <div>{doubled}</div>;
+}
+
+// ❌ BAD: Side effect during render
+function Component({ userId }) {
+  trackView(userId); // ❌ Side effect!
+  return <div>...</div>;
+}
+
+// ✅ GOOD: Side effect in event handler
+function Component({ userId }) {
+  const handleClick = () => {
+    trackView(userId); // ✅ Side effect in handler
+  };
+  return <button onClick={handleClick}>Click</button>;
+}
+```

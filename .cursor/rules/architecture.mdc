@@ -1,0 +1,96 @@
+---
+alwaysApply: true
+description: 
+globs: **/*
+---
+
+# Architecture
+
+## Principles
+
+- tRPC-first (no Server Actions)
+- Server Components default
+- Slot pattern for server→client composition
+- Colocate by domain
+- Type-safe end-to-end (no use of `as` or `any` type unless the function genuinely accepts anything)
+- Next.js 16: `params` is Promise (await it)
+
+## Server Components
+
+```typescript
+// Use tRPC server caller
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params; // Must await in Next.js 16
+  const data = await api.resources.get({ id });
+  return <div>{data.name}</div>;
+}
+```
+
+## Client Components
+
+```typescript
+"use client";
+// Use tRPC React hooks
+export function Form() {
+  const query = api.resources.list.useQuery();
+  return <div>{query.data?.map(r => <div key={r.id}>{r.name}</div>)}</div>;
+}
+```
+
+## Slot Pattern
+
+**Problem:** Client component needs server component
+
+**Solution:** Pass as prop
+
+```typescript
+// Server (page.tsx)
+export default async function Page() {
+  return <ClientComp sidebar={<ServerNav />} />;
+}
+
+// Client (ClientComp.tsx)
+"use client";
+export function ClientComp({ sidebar }: { sidebar: React.ReactNode }) {
+  return <div>{sidebar}</div>;
+}
+```
+
+**Rules:**
+- ❌ Client cannot import server component
+- ✅ Client can receive server component as prop
+- ✅ Use `React.ReactNode` type for slots
+
+## tRPC Routers
+
+```typescript
+// Use createTRPCRouter, createApiProcedure, publicProcedure
+export const resourcesRouter = createTRPCRouter({
+  get: createApiProcedure({ openapi: { method: "GET", path: "/resources/{id}", operationId: "getResource" } })
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.resource.findFirst({ where: { id: input.id } });
+    }),
+  
+  create: publicProcedure
+    .input(z.object({ name: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      // ctx.userId comes from AppConfiguration (loggedInUserId), not authentication
+      return await ctx.db.resource.create({ data: { name: input.name, user_id: ctx.userId } });
+    }),
+});
+```
+
+## Context
+
+```typescript
+export const createTRPCContext = (opts: { headers?: Headers } = {}) => {
+  // access headers as needed
+};
+```
+
+## Anti-Patterns
+
+**❌ Server Actions:** Use tRPC procedures
+**❌ Import server in client:** Use slot pattern
+**❌ Skip await params:** Next.js 16 requires await

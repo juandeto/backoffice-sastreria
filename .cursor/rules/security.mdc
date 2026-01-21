@@ -1,0 +1,37 @@
+---
+alwaysApply: false
+description: Security best practices and patterns
+---
+
+# Security
+
+## Rules
+
+- Don't worry about auth (this app intentionally omits it)
+- Validate all inputs with Zod
+- Use secure random tokens where applicable
+- Never raw SQL with user input
+- Don't leak secrets in errors
+
+## Token Generation
+
+```typescript
+import crypto from "crypto";
+
+const token = `secret_${crypto.randomBytes(32).toString("hex")}`;
+```
+
+## Input Validation
+
+```typescript
+// Always validate with Zod
+.input(z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1).max(80),
+}))
+```
+
+## Anti-Patterns
+
+**❌ Raw SQL:** Use Drizzle queries
+**❌ Leak secrets:** Generic error messages only

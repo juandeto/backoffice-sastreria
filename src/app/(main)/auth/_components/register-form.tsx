@@ -4,23 +4,38 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { api } from "@/app/api/trpc/react";
 
 const FormSchema = z
   .object({
-    email: z.string().email({ message: "Please enter a valid email address." }),
-    password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-    confirmPassword: z.string().min(6, { message: "Confirm Password must be at least 6 characters." }),
+    email: z.string().email({ message: "Por favor ingresa una dirección de correo válida." }),
+    password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
+    confirmPassword: z.string().min(6, { message: "La confirmación de contraseña debe tener al menos 6 caracteres." }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match.",
+    message: "Las contraseñas no coinciden.",
     path: ["confirmPassword"],
   });
 
 export function RegisterForm() {
+  const router = useRouter();
+  const signUpMutation = api.users.signUp.useMutation({
+    onSuccess: () => {
+      router.push("/validate-email");
+      router.refresh();
+    },
+    onError: (error: { message?: string }) => {
+      toast.error("Error al registrar", {
+        description: error.message || "No se pudo crear la cuenta",
+      });
+    },
+  });
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -31,12 +46,10 @@ export function RegisterForm() {
   });
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    toast("You submitted the following values", {
-      description: (
-        <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
+    console.log("data", data);
+    signUpMutation.mutate({
+      email: data.email,
+      password: data.password,
     });
   };
 
@@ -48,7 +61,7 @@ export function RegisterForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email Address</FormLabel>
+              <FormLabel>Correo electrónico</FormLabel>
               <FormControl>
                 <Input id="email" type="email" placeholder="you@example.com" autoComplete="email" {...field} />
               </FormControl>
@@ -61,7 +74,7 @@ export function RegisterForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Contraseña</FormLabel>
               <FormControl>
                 <Input id="password" type="password" placeholder="••••••••" autoComplete="new-password" {...field} />
               </FormControl>
@@ -74,7 +87,7 @@ export function RegisterForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
+              <FormLabel>Confirmar contraseña</FormLabel>
               <FormControl>
                 <Input
                   id="confirmPassword"
@@ -88,8 +101,8 @@ export function RegisterForm() {
             </FormItem>
           )}
         />
-        <Button className="w-full" type="submit">
-          Register
+        <Button className="w-full" type="submit" disabled={signUpMutation.isPending}>
+          {signUpMutation.isPending ? "Registrando..." : "Registrarse"}
         </Button>
       </form>
     </Form>

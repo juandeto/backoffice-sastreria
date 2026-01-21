@@ -1,0 +1,67 @@
+---
+alwaysApply: true
+description: 
+globs: **/*
+---
+
+# Documentation
+
+See `docs` for project-specific information that should be referenced frequently.
+
+## Rules
+
+- JSDoc for all public functions/types/classes
+- Document "why" not "what"
+- Update docs when code changes
+- Use examples
+- Remove outdated comments
+- Be specific (avoid vague terms)
+- Document assumptions
+
+## JSDoc Format
+
+````typescript
+/**
+ * Creates a new resource.
+ *
+ * @param input - Resource parameters
+ * @param input.name - Name of the resource
+ * @returns Resource object with ok status
+ * @throws {TRPCError} NOT_FOUND - Resource not found
+ * @throws {TRPCError} FORBIDDEN - Insufficient permissions
+ *
+ * @example
+ * ```typescript
+ * const result = await api.resources.create({ name: "Example" });
+ * ```
+ */
+export async function createResource(input: { name: string }) {
+  // Implementation
+}
+````
+
+## Type Documentation
+
+```typescript
+/**
+ * Represents a resource object.
+ *
+ * @see db/schema.ts for full schema
+ */
+```
+
+## Inline Comments
+
+```typescript
+// ✅ GOOD: Explains why
+// Use Unix timestamp to match API format
+const timestamp = Math.floor(Date.now() / 1000);
+
+// ❌ BAD: States the obvious
+// Set timestamp to current time
+const timestamp = Date.now();
+```
+
+# New or Updated Documentation
+
+Use concise language and avoid irrelevant detail.

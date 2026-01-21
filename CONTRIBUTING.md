@@ -1,6 +1,6 @@
 # Contributing to Studio Admin
 
-Thanks for showing interest in improving **Studio Admin** (repo: `next-shadcn-admin-dashboard`).  
+Thanks for showing interest in improving **Studio Admin** (repo: `backoffice-sastreria`).  
 This guide will help you set up your environment and understand how to contribute.
 
 ---
@@ -34,7 +34,7 @@ src
 └── types             # TypeScript definitions
 ```
 
-If you’d like a more detailed example of this setup, check out the [Next Colocation Template](https://github.com/arhamkhnz/next-colocation-template), where the full structure is explained with examples.
+If you’d like a more detailed example of this setup, check out the [Next Colocation Template](https://github.com/juandeto/next-colocation-template), where the full structure is explained with examples.
 
 ---
 
@@ -44,16 +44,16 @@ If you’d like a more detailed example of this setup, check out the [Next Coloc
 
 1. Fork the Repository
    
-   Click [here](https://github.com/arhamkhnz/next-shadcn-admin-dashboard/fork) to fork the repository.
+   Click [here](https://github.com/juandeto/backoffice-sastreria/fork) to fork the repository.
 
 2. Clone the Repository  
    ```bash
-   git clone https://github.com/YOUR_USERNAME/next-shadcn-admin-dashboard.git
+   git clone https://github.com/YOUR_USERNAME/backoffice-sastreria.git
    ```
    
 3. Navigate into the Project  
    ```bash
-   cd next-shadcn-admin-dashboard
+   cd backoffice-sastreria
    ```
 
 4. **Install dependencies**
@@ -69,34 +69,6 @@ If you’d like a more detailed example of this setup, check out the [Next Coloc
 
 ---
 
-## Contribution Flow
-
-- Always create a new branch before working on changes:
-  ```bash
-  git checkout -b feature/my-update
-  ```
-
-- Use clear commit messages:
-  ```bash
-  git commit -m "feat: add finance dashboard screen"
-  ```
-
-- Open a Pull Request once ready.
-- If your change adds a new UI screen or component, include a screenshot in your PR description.
-
----
-
-## Where to Contribute
-
-- **External Pages**: Landing pages or other non-dashboard routes → `src/app/(external)/`  
-- **Auth Screens**: Login, register, and authentication layouts → `src/app/(main)/auth/`  
-- **Dashboard Screens**: Feature dashboards like CRM, Finance, Analytics → `src/app/(main)/dashboard/`
-- **Components**: Reusable UI goes in `src/components/`  
-- **Hooks**: Custom logic goes in `src/hooks/`  
-- **Themes**: New presets under `src/styles/presets/`  
-
----
-
 ## Guidelines
 
 - Prefer **TypeScript types** over `any`
@@ -107,21 +79,5 @@ If you’d like a more detailed example of this setup, check out the [Next Coloc
 - Avoid unnecessary dependencies — prefer existing utilities where possible
 
 ---
-
-## Submitting PRs
-
-- Open a Pull Request once your changes are ready.  
-- Ensure your branch is up to date with `main` before submitting.  
-- Reference any related issue in your PR for context.
-
----
-
-## Questions & Support
-
-- Report bugs, suggestions, or issues via [GitHub Issues](https://github.com/arhamkhnz/next-shadcn-admin-dashboard/issues)
-
----
-
-Your contributions keep this project growing. 🚀
 
 **Happy Vibe Coding!**

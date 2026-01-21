@@ -1,0 +1,36 @@
+---
+description: Project overview and general development guidelines
+globs: **/*
+---
+
+# Overview
+
+Next.js 16 + TypeScript + Drizzle + PostgreSQL (Supabase) + shadcn/ui + Tailwind CSS 4
+
+## Stack
+
+- **Framework:** Next.js 16 App Router, React 19
+- **API:** tRPC v11, Zod v4, SuperJSON
+- **Database:** PostgreSQL (Supabase), Drizzle
+- **UI:** shadcn/ui, Tailwind CSS 4, Radix UI, CVA
+- **Testing:** Vitest, Playwright
+
+## Principles
+
+1. tRPC-first (no Server Actions)
+2. Strict TypeScript (no `any`)
+3. Server Components default (`'use client'` only when needed)
+4. Test everything (unit + E2E)
+5. Remove code, don't deprecate
+
+## Server vs Client
+
+**Server (default):**
+
+- Data fetching, backend access, security
+- No `'use client'` directive
+
+**Client (`'use client'`):**
+
+- Event handlers, hooks, browser APIs
+- Interactive UI, tRPC client queries

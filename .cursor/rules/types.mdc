@@ -1,0 +1,111 @@
+---
+alwaysApply: true
+description: 
+globs: **/*
+---
+
+# Types
+
+## Rules
+
+- Define types OUTSIDE function/component declarations
+- Keep types in SAME FILE as usage
+- Never create separate `types.ts` files unless shared
+- Prefer API types → Zod schemas → Drizzle types → Custom types
+- Avoid use of "as" - prefer type refinement functions and conditional statements
+- Exception: `as` assertions are acceptable when working with external library types that don't provide strict typing (e.g., Drizzle JSON fields)
+
+## Type Hierarchy
+
+1. **API types:** `RouterOutputs["router"]["procedure"]`
+2. **Zod schemas:** `z.infer<typeof schema>`
+3. **Drizzle types:** `Drizzle.UserGetPayload<{ include: { ... } }>`
+4. **Custom types:** Only when necessary
+
+## RouterOutputs
+
+```typescript
+import type { RouterOutputs, OkType } from "@/lib/router/react";
+
+// Direct output
+type User = RouterOutputs["users"]["get"];
+
+// Extract ok variant from union
+type UserInfo = OkType<RouterOutputs["users"]["info"]>;
+type UserData = OkType<RouterOutputs["users"]["info"]>["user"];
+```
+
+## OkType
+
+```typescript
+// For union responses with ok: boolean
+type SuccessResponse = OkType<RouterOutputs["users"]["info"]>;
+// Extracts { ok: true, ... } variant
+```
+
+## Utility Types
+
+```typescript
+// Derive from existing types
+type UserName = Pick<User, "name" | "email">;
+type PartialUser = Partial<User>;
+type UserWithoutId = Omit<User, "id">;
+```
+
+## Component Props
+
+```typescript
+// ✅ GOOD: Define outside component
+interface UserCardProps {
+  user: RouterOutputs["users"]["get"];
+  onSelect?: (id: string) => void;
+}
+
+export function UserCard({ user, onSelect }: UserCardProps) {
+  return <div>{user.name}</div>;
+}
+
+// ❌ BAD: Define inside component
+export function UserCard({ user }: { user: User }) {
+  return <div>{user.name}</div>;
+}
+```
+
+## Type Assertions
+
+**General Rule:** Avoid `as` type assertions. Use type refinement functions and conditional statements instead.
+
+**Exception for External Library Types:**
+
+When working with external libraries that don't provide strict typing (e.g., Drizzle `JsonValue`), `as` assertions are acceptable when combined with nullish coalescing and proper defaults:
+
+```typescript
+// ✅ ACCEPTABLE: ProseMirror node attributes (external library limitation)
+const latex = (node.attrs?.latex as string) ?? "";
+const level = (node.attrs?.level as number) ?? 1;
+
+// ✅ ACCEPTABLE: Drizzle JSON fields
+const properties = block.properties as Record<string, unknown>;
+
+// ❌ BAD: Unnecessary assertion on well-typed values
+const name = user.name as string; // user.name is already string
+
+// ❌ BAD: Assertion without nullish coalescing/default
+const value = node.attrs?.value as string; // Could be undefined
+
+// ✅ GOOD: Type guard function (preferred when possible)
+function isString(value: unknown): value is string {
+  return typeof value === "string";
+}
+
+if (isString(node.attrs?.value)) {
+  // value is now properly typed as string
+}
+```
+
+**Best Practices:**
+- Always use nullish coalescing (`??`) with `as` assertions for external library types
+- Prefer type guard functions when the same check is used multiple times
+- Document why `as` is necessary (external library limitation)
+- Never use `as` to bypass TypeScript's type checking for our own types
+```

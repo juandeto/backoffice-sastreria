@@ -1,0 +1,42 @@
+---
+alwaysApply: false
+description: React component best practices
+---
+
+# React Components
+
+## Rules
+
+- TypeScript for all components
+- Never use `forwardRef` (React 19 auto-passes refs)
+- Avoid `useEffect` unless necessary
+- Colocated data fetching (components fetch own data)
+- Minimal props (pass IDs/filters, not processed data)
+- Types defined OUTSIDE component
+- No TODOs or placeholders
+
+## Component Structure
+
+```typescript
+// ✅ GOOD: Types outside, component fetches data
+interface UserListProps {
+  searchQuery: string;
+}
+
+export function UserList({ searchQuery }: UserListProps) {
+  const { data } = api.users.search.useQuery({ query: searchQuery });
+  return <div>{data?.map(u => <User key={u.id} {...u} />)}</div>;
+}
+
+// ❌ BAD: Types inside, receives processed data
+export function UserList({ users }: { users: User[] }) {
+  return <div>{users.map(u => <User key={u.id} {...u} />)}</div>;
+}
+```
+
+## Performance
+
+- Avoid derived state (compute during render)
+- Keep state local
+- Avoid O(n) loops in render
+- Use early returns

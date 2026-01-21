@@ -1,0 +1,72 @@
+---
+description: Performance best practices and patterns
+globs: **/*
+---
+
+# Performance
+
+## Rules
+
+- Use `select` instead of `include` when possible
+- Add `take` limits
+- Use indexes for frequent queries
+- Batch operations (avoid N+1)
+- Paginate large result sets
+- Lazy load heavy components
+- Use Server Components by default
+
+## Database Queries
+
+```typescript
+// ✅ GOOD: Select specific fields
+const users = await ctx.db.user.findMany({
+  where: { deleted: false },
+  select: { id: true, name: true, email: true },
+  take: 100,
+});
+
+// ❌ BAD: Fetch all fields
+const users = await ctx.db.user.findMany({ where: { deleted: false } });
+```
+
+## Batch Operations
+
+```typescript
+// ✅ GOOD: Single query with include
+const teams = await ctx.db.team.findMany({
+  include: { members: { take: 100 } },
+});
+
+// ❌ BAD: N+1 queries
+const teams = await ctx.db.team.findMany();
+for (const team of teams) {
+  const members = await ctx.db.teamMember.findMany({ where: { team_id: team.id } });
+}
+```
+
+## Indexes
+
+```drizzle
+export const resource = pgTable(
+  "resource",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("resource_user_id_idx").on(table.userId),
+    createdAtIdx: index("resource_created_at_idx").on(table.createdAt),
+  })
+);
+```
+
+## Code Splitting
+
+```typescript
+// ✅ GOOD: Dynamic import
+const HeavyComponent = dynamic(() => import("@/components/Heavy"), { ssr: false });
+
+// ❌ BAD: Static import for heavy component
+import { HeavyComponent } from "@/components/Heavy";
+```

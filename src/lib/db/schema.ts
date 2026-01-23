@@ -75,7 +75,9 @@ export const person = pgTable('person', {
   lastName: text('last_name').notNull(),
   birthDate: date('birth_date'),
   gender: text('gender'),
-  original_province: integer('original_province').references(() => province.provinceId),
+  original_province: integer('original_province').references(
+    () => province.provinceId,
+  ),
   instagram: text('instagram'),
   facebook: text('facebook'),
   twitter: text('twitter'),
@@ -92,6 +94,19 @@ export const legislativeTerm = pgTable('legislative_term', {
   province: integer('province').references(() => province.provinceId),
   startDate: date('start_date').notNull(),
   endDate: date('end_date'),
+  legislativePeriodId: uuid('legislative_period_id').references(
+    () => legislativePeriod.id,
+  ),
+  order_in_list: integer('order_in_list').notNull(),
+  notes: text('notes'),
+});
+
+// this table represents legislative periods, e.g., 2019-2023
+export const legislativePeriod = pgTable('legislative_period', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  startDate: date('start_date').notNull(),
+  endDate: date('end_date'),
+  mid_term: boolean('mid_term').default(false),
 });
 
 // export const party = pgTable('party', {
@@ -123,7 +138,9 @@ export const block = pgTable('block', {
   startDate: date('start_date').notNull(),
   endDate: date('end_date'),
   color: text('color').notNull(),
-  block_coalition_id: uuid('block_coalition_id').references(() => block_coalition.id),
+  block_coalition_id: uuid('block_coalition_id').references(
+    () => block_coalition.id,
+  ),
 });
 
 export const block_coalition = pgTable('block_coalition', {
@@ -145,7 +162,7 @@ export const blockMembership = pgTable('block_membership', {
     .references(() => block.id),
   startDate: date('start_date').notNull(),
   endDate: date('end_date'),
-  leader: boolean().default(false)
+  leader: boolean().default(false),
 });
 
 // export const block_coalition_membership = pgTable('block_coalition_membership', {
@@ -253,15 +270,15 @@ export const officialVotePreferenceRule = pgTable(
   },
 );
 
-export const province = pgTable("province", {
-  provinceId: serial("province_id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull().unique(),
-  isoCode: varchar("iso_code", { length: 10 }).notNull().unique(),
-  region: varchar("region", { length: 100 }),
-  nationalDeputiesCount: integer("national_deputies_count"),
-  senatorsCount: integer("senators_count"),
-  senatorialGroup: integer("senatorial_group"),
-  isProvincialBicameral: boolean("is_provincial_bicameral").default(false),
-  hasLeyDeLemas: boolean("has_ley_de_lemas").default(false),
-  geojson: text("geojson"), // Usamos text o jsonb dependiendo de tu necesidad
+export const province = pgTable('province', {
+  provinceId: serial('province_id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull().unique(),
+  isoCode: varchar('iso_code', { length: 10 }).notNull().unique(),
+  region: varchar('region', { length: 100 }),
+  nationalDeputiesCount: integer('national_deputies_count'),
+  senatorsCount: integer('senators_count'),
+  senatorialGroup: integer('senatorial_group'),
+  isProvincialBicameral: boolean('is_provincial_bicameral').default(false),
+  hasLeyDeLemas: boolean('has_ley_de_lemas').default(false),
+  geojson: text('geojson'), // Usamos text o jsonb dependiendo de tu necesidad
 });

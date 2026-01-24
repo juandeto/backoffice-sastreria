@@ -109,14 +109,14 @@ export const legislativePeriod = pgTable('legislative_period', {
   mid_term: boolean('mid_term').default(false),
 });
 
-// export const party = pgTable('party', {
-//   id: uuid('id').primaryKey().defaultRandom(),
-//   name: text('name').notNull(),
-//   abbreviation: text('abbreviation').notNull(),
-//   color: text('color').notNull(),
-//   logo: text('logo'),
-//   partyType: text('party_type'),
-// });
+export const party = pgTable('party', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  abbreviation: text('abbreviation').notNull(),
+  color: text('color').notNull(),
+  logo: text('logo'),
+  partyType: text('party_type'),
+});
 
 // export const partyMembership = pgTable('party_membership', {
 //   id: uuid('id').primaryKey().defaultRandom(),
@@ -130,6 +130,7 @@ export const legislativePeriod = pgTable('legislative_period', {
 //   endDate: date('end_date'),
 // });
 
+
 export const block = pgTable('block', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: text('name').notNull(),
@@ -138,6 +139,7 @@ export const block = pgTable('block', {
   startDate: date('start_date').notNull(),
   endDate: date('end_date'),
   color: text('color').notNull(),
+  partyId: uuid('party_id').references(() => party.id),
   block_coalition_id: uuid('block_coalition_id').references(
     () => block_coalition.id,
   ),
@@ -152,7 +154,7 @@ export const block_coalition = pgTable('block_coalition', {
   color: text('color').notNull(),
 });
 
-export const blockMembership = pgTable('block_membership', {
+export const block_membership = pgTable('block_membership', {
   id: uuid('id').primaryKey().defaultRandom(),
   legislativeTermId: uuid('legislative_term_id')
     .notNull()

@@ -176,6 +176,7 @@ export const dashboardColumns: ColumnDef<z.infer<typeof sectionSchema>>[] = [
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
+        <DropdownMenuItem>Ver más</DropdownMenuItem>
           <DropdownMenuItem>Edit</DropdownMenuItem>
           <DropdownMenuItem>Make a copy</DropdownMenuItem>
           <DropdownMenuItem>Favorite</DropdownMenuItem>

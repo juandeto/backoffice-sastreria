@@ -1,6 +1,6 @@
 {
-  "id": "5993a741-02de-4880-9427-253173f2ece6",
-  "prevId": "ece85547-01f0-40a4-9e8a-40bc8ab71a6e",
+  "id": "b732c1c3-aa9f-4df2-b028-8b7ec9e51424",
+  "prevId": "5993a741-02de-4880-9427-253173f2ece6",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -369,45 +369,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.legislative_period": {
-      "name": "legislative_period",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_date": {
-          "name": "end_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "mid_term": {
-          "name": "mid_term",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.legislative_term": {
       "name": "legislative_term",
       "schema": "",
@@ -450,12 +411,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "legislative_period_id": {
-          "name": "legislative_period_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
         "order_in_list": {
           "name": "order_in_list",
           "type": "integer",
@@ -493,19 +448,6 @@
           ],
           "columnsTo": [
             "province_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "legislative_term_legislative_period_id_legislative_period_id_fk": {
-          "name": "legislative_term_legislative_period_id_legislative_period_id_fk",
-          "tableFrom": "legislative_term",
-          "tableTo": "legislative_period",
-          "columnsFrom": [
-            "legislative_period_id"
-          ],
-          "columnsTo": [
-            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"

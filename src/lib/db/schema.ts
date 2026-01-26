@@ -94,20 +94,18 @@ export const legislativeTerm = pgTable('legislative_term', {
   province: integer('province').references(() => province.provinceId),
   startDate: date('start_date').notNull(),
   endDate: date('end_date'),
-  legislativePeriodId: uuid('legislative_period_id').references(
-    () => legislativePeriod.id,
-  ),
   order_in_list: integer('order_in_list').notNull(),
   notes: text('notes'),
 });
 
-// this table represents legislative periods, e.g., 2019-2023
-export const legislativePeriod = pgTable('legislative_period', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  startDate: date('start_date').notNull(),
-  endDate: date('end_date'),
-  mid_term: boolean('mid_term').default(false),
-});
+// // this table represents legislative periods, e.g., 2019-2023 BUT is not neccesary, 
+//  we can use the legislativeTerm table instead
+// export const legislativePeriod = pgTable('legislative_period', {
+//   id: uuid('id').primaryKey().defaultRandom(),
+//   startDate: date('start_date').notNull(),
+//   endDate: date('end_date'),
+//   mid_term: boolean('mid_term').default(false),
+// });
 
 export const party = pgTable('party', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -239,6 +237,8 @@ export const vote = pgTable('vote', {
 
 export const voteRecord = pgTable('vote_record', {
   id: uuid('id').primaryKey().defaultRandom(),
+
+  type: text('type').notNull(),
 
   voteId: uuid('vote_id')
     .notNull()

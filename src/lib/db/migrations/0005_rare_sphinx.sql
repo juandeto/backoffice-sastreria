@@ -13,8 +13,8 @@ CREATE TABLE "province" (
 	CONSTRAINT "province_iso_code_unique" UNIQUE("iso_code")
 );
 --> statement-breakpoint
-ALTER TABLE "legislative_term" ADD COLUMN "province" uuid;--> statement-breakpoint
-ALTER TABLE "person" ADD COLUMN "original_province" uuid;--> statement-breakpoint
+ ALTER TABLE "legislative_term" ADD COLUMN "province" integer;
+ ALTER TABLE "person" ADD COLUMN "original_province" uuid;--> statement-breakpoint
 ALTER TABLE "political_leader" ADD COLUMN "province" uuid;--> statement-breakpoint
 ALTER TABLE "legislative_term" ADD CONSTRAINT "legislative_term_province_province_province_id_fk" FOREIGN KEY ("province") REFERENCES "public"."province"("province_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "person" ADD CONSTRAINT "person_original_province_province_province_id_fk" FOREIGN KEY ("original_province") REFERENCES "public"."province"("province_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

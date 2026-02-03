@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils/utils";
 
 const expenses = [
   {

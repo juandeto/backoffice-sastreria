@@ -47,7 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
             font={font}
           >
             {children}
-            <Toaster />
+            <Toaster richColors position="bottom-center"  />
           </PreferencesStoreProvider>
         </TRPCProvider>
       </body>

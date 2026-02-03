@@ -22,7 +22,7 @@ export function LoginForm() {
   const router = useRouter();
   const signInMutation = api.users.signIn.useMutation({
     onSuccess: () => {
-      router.push("/dashboard");
+      router.push("/sections");
       router.refresh();
     },
     onError: (error: { message?: string }) => {

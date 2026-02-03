@@ -1,13 +1,26 @@
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, ilike } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../init";
 import { block } from "@/lib/db/schema";
 
 export const blocksRouter = createTRPCRouter({
-  list: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.select().from(block);
-  }),
+  list: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).optional(),
+        take: z.number().int().positive().max(100).optional().default(50),
+      }).optional()
+    )
+    .query(async ({ ctx, input }) => {
+      const name = input?.name?.trim();
+      const take = input?.take ?? 10;
+      const query = ctx.db.select().from(block);
+      if (name) {
+        return query.where(ilike(block.name, `%${name}%`)).limit(take);
+      }
+      return query.limit(take);
+    }),
 
   getById: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
@@ -27,10 +40,12 @@ export const blocksRouter = createTRPCRouter({
       z.object({
         name: z.string().min(1),
         abbreviation: z.string().min(1),
-        chamber: z.enum(["DEPUTIES", "SENATE"]),
+        chamber: z.enum(["DEPUTY", "SENATOR"]),
         startDate: z.string(),
         endDate: z.string().optional(),
         color: z.string().min(1),
+        partyId: z.string().uuid().optional(),
+        block_coalition_id: z.string().uuid().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -44,10 +59,12 @@ export const blocksRouter = createTRPCRouter({
         id: z.string().uuid(),
         name: z.string().min(1).optional(),
         abbreviation: z.string().min(1).optional(),
-        chamber: z.enum(["DEPUTIES", "SENATE"]).optional(),
+        chamber: z.enum(["DEPUTY", "SENATOR"]).optional(),
         startDate: z.string().optional(),
         endDate: z.string().optional(),
         color: z.string().min(1).optional(),
+        partyId: z.string().uuid().optional().nullable(),
+        block_coalition_id: z.string().uuid().optional().nullable(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

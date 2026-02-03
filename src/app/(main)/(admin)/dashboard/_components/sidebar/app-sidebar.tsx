@@ -21,6 +21,8 @@ import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
+import { useUser } from "@/lib/auth";
+import { use } from "react";
 
 const _data = {
   navSecondary: [
@@ -67,6 +69,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       isSynced: s.isSynced,
     })),
   );
+  const { userPromise } = useUser();
+  const user = use(userPromise);
 
   const variant = isSynced ? sidebarVariant : props.variant;
   const collapsible = isSynced ? sidebarCollapsible : props.collapsible;
@@ -91,7 +95,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={rootUser} />
+        <NavUser user={user ?? { name: "", email: "" }} />
       </SidebarFooter>
     </Sidebar>
   );

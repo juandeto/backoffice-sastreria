@@ -1,13 +1,33 @@
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, ilike, or } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../init";
 import { politicalLeader } from "@/lib/db/schema";
 
 export const politicalLeadersRouter = createTRPCRouter({
-  list: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.select().from(politicalLeader);
-  }),
+  list: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).optional(),
+        take: z.number().int().positive().max(100).optional().default(50),
+      }).optional()
+    )
+    .query(async ({ ctx, input }) => {
+      const name = input?.name?.trim();
+      const take = input?.take ?? 10;
+      const query = ctx.db.select().from(politicalLeader);
+      if (name) {
+        return query
+          .where(
+            or(
+              ilike(politicalLeader.firstName, `%${name}%`),
+              ilike(politicalLeader.lastName, `%${name}%`)
+            )
+          )
+          .limit(take);
+      }
+      return query.limit(take);
+    }),
 
   getById: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))

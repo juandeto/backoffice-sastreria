@@ -1,0 +1,1 @@
+ALTER TABLE "legislative_term" ADD COLUMN "party_name" text;

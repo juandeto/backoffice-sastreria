@@ -7,6 +7,7 @@ import { cookies } from "next/headers";
 import { SignJWT } from "jose";
 import { db } from "@/lib/db/drizzle";
 import { activityLogs, ActivityType, NewActivityLog, User } from "@/lib/db/schema";
+import { revalidatePath } from "next/cache";
 
 function uuidv4(): string {
   return crypto.randomUUID();
@@ -149,6 +150,8 @@ export const usersRouter = createTRPCRouter({
 
     // Clear the session cookie
     (await cookies()).delete("session");
+
+    revalidatePath('/', 'layout');
 
     return {
       success: true,

@@ -1,0 +1,2 @@
+ALTER TABLE "party" ADD CONSTRAINT "party_name_unique" UNIQUE("name");--> statement-breakpoint
+ALTER TABLE "legislative_term" ADD CONSTRAINT "legislative_term_party_name_party_name_fk" FOREIGN KEY ("party_name") REFERENCES "public"."party"("name") ON DELETE no action ON UPDATE no action;

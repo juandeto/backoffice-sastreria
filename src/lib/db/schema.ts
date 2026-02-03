@@ -70,10 +70,11 @@ export enum ActivityType {
 // usiness related tables
 
 export const person = pgTable('person', {
-  id: uuid('id').primaryKey().defaultRandom(),
+id: uuid('id').primaryKey().defaultRandom(),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
   birthDate: date('birth_date'),
+  image_url: text('image_url'),
   gender: text('gender'),
   original_province: integer('original_province').references(
     () => province.provinceId,
@@ -83,7 +84,10 @@ export const person = pgTable('person', {
   twitter: text('twitter'),
   tik_tok: text('tik_tok'),
   biography: text('biography'),
+  profession: text('profession'),
 });
+
+export type Person = typeof person.$inferSelect;
 
 export const legislativeTerm = pgTable('legislative_term', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -96,6 +100,7 @@ export const legislativeTerm = pgTable('legislative_term', {
   endDate: date('end_date'),
   order_in_list: integer('order_in_list').notNull(),
   notes: text('notes'),
+  elected_in_party: text('party_name').references(() => party.name),
 });
 
 // // this table represents legislative periods, e.g., 2019-2023 BUT is not neccesary, 
@@ -109,7 +114,7 @@ export const legislativeTerm = pgTable('legislative_term', {
 
 export const party = pgTable('party', {
   id: uuid('id').primaryKey().defaultRandom(),
-  name: text('name').notNull(),
+  name: text('name').notNull().unique(),
   abbreviation: text('abbreviation').notNull(),
   color: text('color').notNull(),
   logo: text('logo'),
@@ -163,6 +168,9 @@ export const block_membership = pgTable('block_membership', {
   startDate: date('start_date').notNull(),
   endDate: date('end_date'),
   leader: boolean().default(false),
+  personId: uuid('person_id')
+  .notNull()
+  .references(() => person.id),
 });
 
 // export const block_coalition_membership = pgTable('block_coalition_membership', {
@@ -284,3 +292,6 @@ export const province = pgTable('province', {
   hasLeyDeLemas: boolean('has_ley_de_lemas').default(false),
   geojson: text('geojson'), // Usamos text o jsonb dependiendo de tu necesidad
 });
+
+
+export type Province = typeof province.$inferSelect;

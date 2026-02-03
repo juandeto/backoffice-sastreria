@@ -33,28 +33,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { api } from "@/app/api/trpc/react";
+import { useRouter } from "next/navigation";
 
 const blockFormSchema = z.object({
   name: z.string().min(1, { message: "El nombre es requerido" }),
   abbreviation: z.string().min(1, { message: "La abreviación es requerida" }),
-  chamber: z.enum(["DEPUTIES", "SENATE"], {
+  chamber: z.enum(["DEPUTY", "SENATOR"], {
     required_error: "La cámara es requerida",
   }),
   startDate: z.string().min(1, { message: "La fecha de inicio es requerida" }),
   endDate: z.string().optional(),
   color: z.string().min(1, { message: "El color es requerido" }),
+  partyId: z.string().uuid().optional(),
+  block_coalition_id: z.string().uuid().optional(),
 });
 
 type BlockFormValues = z.infer<typeof blockFormSchema>;
 
 export function CreateBlockDialog() {
   const [open, setOpen] = React.useState(false);
+  const router = useRouter();
+
 
   const createBlockMutation = api.blocks.create.useMutation({
     onSuccess: () => {
       toast.success("Bloque creado exitosamente");
       setOpen(false);
       form.reset();
+      router.refresh();
     },
     onError: (error) => {
       toast.error("Error al crear el bloque", {
@@ -68,10 +74,12 @@ export function CreateBlockDialog() {
     defaultValues: {
       name: "",
       abbreviation: "",
-      chamber: "DEPUTIES",
+      chamber: "DEPUTY",
       startDate: "",
       endDate: "",
       color: "",
+      partyId: undefined,
+      block_coalition_id: undefined,
     },
   });
 
@@ -83,13 +91,15 @@ export function CreateBlockDialog() {
       startDate: data.startDate,
       endDate: data.endDate || undefined,
       color: data.color,
+      partyId: data.partyId || undefined,
+      block_coalition_id: data.block_coalition_id || undefined,
     });
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Crear Bloque</Button>
+        <Button  size="sm">Crear Bloque</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
@@ -148,8 +158,8 @@ export function CreateBlockDialog() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="DEPUTIES">Diputados</SelectItem>
-                      <SelectItem value="SENATE">Senado</SelectItem>
+                      <SelectItem value="DEPUTY">Diputados</SelectItem>
+                      <SelectItem value="SENATOR">Senadores</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />

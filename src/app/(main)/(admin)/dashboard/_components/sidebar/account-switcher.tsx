@@ -1,19 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { use, useEffect } from "react";
 
-import { BadgeCheck, Bell, CreditCard, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn, getInitials } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils/utils";
+import { useUser } from "@/lib/auth";
+import { useRouter } from 'next/navigation';
+import { api } from "@/app/api/trpc/react";
 
 export function AccountSwitcher({
   users,
@@ -26,54 +28,56 @@ export function AccountSwitcher({
     readonly role: string;
   }>;
 }) {
-  const [activeUser, setActiveUser] = useState(users[0]);
+  const { userPromise } = useUser();
+  const user = use(userPromise);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.replace('/auth/v1/login');
+    }
+  }, [user, router]);
+
+  if (!user) {
+    return null;
+  }
+
+  // Find the current user in the mock users list to get the avatar
+  const currentUserMock = users.find((u) => u.email === user.email);
+  const avatarUrl = currentUserMock?.avatar || "/default_avatar.svg";
+  const signOutMutation = api.users.signOut.useMutation();
+
+  async function handleSignOut() {
+    await signOutMutation.mutateAsync();
+    router.refresh();
+    router.replace('/');
+  }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="size-9 rounded-lg">
-          <AvatarImage src={activeUser.avatar || undefined} alt={activeUser.name} />
-          <AvatarFallback className="rounded-lg">{getInitials(activeUser.name)}</AvatarFallback>
+        <Avatar className="size-9 rounded-lg cursor-pointer">
+          <AvatarImage src={avatarUrl} alt={user.name || ""} />
+          <AvatarFallback className="rounded-lg">{user?.email || "User"}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-56 space-y-1 rounded-lg" side="bottom" align="end" sideOffset={4}>
-        {users.map((user) => (
-          <DropdownMenuItem
-            key={user.email}
-            className={cn("p-0", user.id === activeUser.id && "border-l-2 border-l-primary bg-accent/50")}
-            onClick={() => setActiveUser(user)}
-          >
-            <div className="flex w-full items-center justify-between gap-2 px-1 py-1.5">
-              <Avatar className="size-9 rounded-lg">
-                <AvatarImage src={user.avatar || undefined} alt={user.name} />
-                <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">{user.name}</span>
-                <span className="truncate text-xs capitalize">{user.role}</span>
-              </div>
+        <DropdownMenuItem className={cn("p-0 border-l-2 border-l-primary bg-accent/50")}>
+          <div className="flex w-full items-center justify-between gap-2 px-1 py-1.5">
+            <Avatar className="size-9 rounded-lg">
+              <AvatarImage src={avatarUrl} alt={user?.email || ""} />
+              <AvatarFallback className="rounded-lg">{user?.email || "User"}</AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-semibold">{user?.email}</span>
+              <span className="truncate text-xs capitalize text-muted-foreground">{user.role}</span>
             </div>
-          </DropdownMenuItem>
-        ))}
+          </div>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <BadgeCheck />
-            Account
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <CreditCard />
-            Billing
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Bell />
-            Notifications
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <LogOut />
-          Log out
+        <DropdownMenuItem className="cursor-pointer" onClick={handleSignOut}>
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

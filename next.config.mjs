@@ -8,7 +8,7 @@ const nextConfig = {
     return [
       {
         source: "/dashboard",
-        destination: "/dashboard/congressmen",
+        destination: "/sections/congressmen",
         permanent: false,
       },
       {

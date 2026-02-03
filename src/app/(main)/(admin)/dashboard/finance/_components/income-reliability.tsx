@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils/utils";
 
 export function IncomeReliability() {
   return (

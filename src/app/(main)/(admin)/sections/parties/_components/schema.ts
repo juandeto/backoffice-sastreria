@@ -10,7 +10,17 @@ export const blockSchema = z.object({
   startDate: z.string(),
   endDate: z.string().nullable().optional(),
   color: z.string(),
+  partyId: z.string().uuid().nullable().optional(),
   block_coalition_id: z.string().uuid().nullable().optional(),
+});
+
+export const partySchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  abbreviation: z.string(),
+  color: z.string(),
+  logo: z.string().nullable().optional(),
+  partyType: z.string().nullable().optional(),
 });
 
 export const blockCoalitionSchema = z.object({
@@ -23,6 +33,7 @@ export const blockCoalitionSchema = z.object({
 });
 
 export type Block = z.infer<typeof blockSchema>;
+export type Party = z.infer<typeof partySchema>;
 export type BlockCoalition = z.infer<typeof blockCoalitionSchema>;
 
 // Deprecated - kept for compatibility during migration

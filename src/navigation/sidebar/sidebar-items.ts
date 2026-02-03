@@ -2,6 +2,7 @@ import {
   Banknote,
   Calendar,
   ChartBar,
+  FileText,
   Fingerprint,
   Forklift,
   Gauge,
@@ -11,11 +12,14 @@ import {
   Lock,
   type LucideIcon,
   Mail,
+  MapPin,
   MessageSquare,
   ReceiptText,
+  Settings,
   ShoppingBag,
   SquareArrowUpRight,
   Users,
+  Vote,
 } from "lucide-react";
 
 export interface NavSubItem {
@@ -98,6 +102,32 @@ export const sidebarItems: NavGroup[] = [
         url: "/sections/parties",
         icon: GraduationCap,
       },
+      {
+        title: "Leyes y votaciones",
+        url: "/sections/bills",
+        icon: FileText,
+      },
+      {
+        title: "Jefes Politicos",
+        url: "/sections/political-leaders",
+        icon: Vote,
+      },
+      {
+        title: "Provincias",
+        url: "/sections/provinces",
+        icon: MapPin,
+      },
     ],
-  }
+  },
+  {
+    id: 3,
+    label: "Configuración",
+    items: [
+      {
+        title: "Configuración",
+        url: "/sections/configuration",
+        icon: Settings,
+      },
+    ],
+  },
 ];

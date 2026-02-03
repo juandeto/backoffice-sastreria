@@ -8,7 +8,7 @@ import { SimpleIcon } from "@/components/simple-icon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils/utils";
 
 const now = new Date();
 

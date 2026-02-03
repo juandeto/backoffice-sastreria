@@ -3,17 +3,20 @@ import Link from "next/link";
 import { Command } from "lucide-react";
 
 import { LoginForm } from "../../_components/login-form";
+import Image from "next/image";
 
 export default function LoginV1() {
   return (
     <div className="flex h-dvh">
-      <div className="hidden bg-primary lg:block lg:w-1/3">
+      <div className="hidden bg-primary-foreground lg:block lg:w-1/3">
         <div className="flex h-full flex-col items-center justify-center p-12 text-center">
           <div className="space-y-6">
-            <Command className="mx-auto size-12 text-primary-foreground" />
+            <Command className="mx-auto size-12 text-primary" />
             <div className="space-y-2">
-              <h1 className="font-light text-5xl text-primary-foreground">La Sastreria</h1>
-              <p className="text-primary-foreground/80 text-xl">Inicia sesión para continuar</p>
+              <h1 className="font-normal text-5xl text-primary">
+                LA SASTRERÍA
+              </h1>
+              <p className="text-primary/80 text-xl">Inicia sesión para continuar</p>
             </div>
           </div>
         </div>

@@ -7,7 +7,7 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils/utils";
 
 const chartData = [
   { month: "Jan", income: 5900, expenses: -4200 },

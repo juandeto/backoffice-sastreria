@@ -29,12 +29,13 @@ export const personsRouter = createTRPCRouter({
         lastName: z.string().min(1),
         birthDate: z.string().optional(),
         gender: z.string().optional(),
-        original_district: z.string().optional(),
+        original_province: z.number().optional(),
         instagram: z.string().optional(),
         facebook: z.string().optional(),
         twitter: z.string().optional(),
         tik_tok: z.string().optional(),
         biography: z.string().optional(),
+        profession: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -48,14 +49,16 @@ export const personsRouter = createTRPCRouter({
         id: z.string().uuid(),
         firstName: z.string().min(1).optional(),
         lastName: z.string().min(1).optional(),
+        image_url: z.string().optional(),
         birthDate: z.string().optional(),
         gender: z.string().optional(),
-        original_district: z.string().optional(),
+        original_province: z.number().optional(),
         instagram: z.string().optional(),
         facebook: z.string().optional(),
         twitter: z.string().optional(),
         tik_tok: z.string().optional(),
         biography: z.string().optional(),
+        profession: z.string().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

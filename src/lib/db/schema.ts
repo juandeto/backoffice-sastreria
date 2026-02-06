@@ -173,29 +173,6 @@ export const block_membership = pgTable('block_membership', {
   .references(() => person.id),
 });
 
-// export const block_coalition_membership = pgTable('block_coalition_membership', {
-//   id: uuid('id').primaryKey().defaultRandom(),
-//   legislativeTermId: uuid('legislative_term_id')
-//     .notNull()
-//     .references(() => legislativeTerm.id),
-//   blockCoalitionId: uuid('block_coalition_id')
-//     .notNull()
-//     .references(() => block_coalition.id),
-//   startDate: date('start_date').notNull(),
-//   endDate: date('end_date'),
-// });
-
-// export const blockParty = pgTable('block_party', {
-//   id: uuid('id').primaryKey().defaultRandom(),
-//   blockId: uuid('block_id')
-//     .notNull()
-//     .references(() => block.id),
-//   partyId: uuid('party_id')
-//     .notNull()
-//     .references(() => party.id),
-//   startDate: date('start_date').notNull(),
-//   endDate: date('end_date'),
-// });
 
 export const politicalLeader = pgTable('political_leader', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -224,9 +201,9 @@ export const bill = pgTable('bill', {
 export const vote = pgTable('vote', {
   id: uuid('id').primaryKey().defaultRandom(),
 
-  billId: uuid('bill_id')
+  sessionId: uuid('session_id')
     .notNull()
-    .references(() => bill.id),
+    .references(() => session.id),
 
   chamber: chamberEnum('chamber').notNull(),
 
@@ -241,22 +218,45 @@ export const vote = pgTable('vote', {
   comments: text('comments'),
 
   result: voteResultEnum('result'),
+  billId: uuid('bill_id').references(() => bill.id),
 });
 
 export const voteRecord = pgTable('vote_record', {
   id: uuid('id').primaryKey().defaultRandom(),
-
-  type: text('type').notNull(),
-
   voteId: uuid('vote_id')
     .notNull()
     .references(() => vote.id),
-
   legislativeTermId: uuid('legislative_term_id')
     .notNull()
     .references(() => legislativeTerm.id),
-
   choice: voteChoiceEnum('choice').notNull(),
+});
+
+
+export const session = pgTable("session", {
+  id: uuid("id").primaryKey().defaultRandom(),
+
+  chamber: chamberEnum("chamber").notNull(),
+  sessionDate: date("session_date").notNull(),
+  sessionType: text("session_type"),
+
+  title: text("title"),
+  // Optional human-readable label
+  // e.g. "Sesión especial por Ley Bases"
+
+  description: text("description"),
+  quorumRequired: integer("quorum_required").notNull(),
+  quorumAchieved: integer("quorum_achieved"),
+
+  hasQuorum: boolean("has_quorum"),
+
+  status: text("status").notNull(),
+  // 'scheduled' | 'started' | 'failed_no_quorum' | 'closed'
+
+  source: text("source"),
+  // link to official record / Diario de Sesiones
+
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const officialVotePreference = pgTable('official_vote_preference', {

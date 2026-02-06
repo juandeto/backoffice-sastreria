@@ -20,6 +20,7 @@ const createLegislatorSchema = z.object({
   birthDate: z.string().optional(),
   gender: z.string().optional(),
   original_province: z.number().optional(),
+  image_url: z.string().optional(),
   profession: z.string().optional(),
   instagram: z.string().optional(),
   facebook: z.string().optional(),
@@ -174,6 +175,7 @@ export const congressmenRouter = createTRPCRouter({
         birthDate,
         gender,
         original_province,
+        image_url,
         profession,
         instagram,
         facebook,
@@ -198,6 +200,7 @@ export const congressmenRouter = createTRPCRouter({
           birthDate: birthDate ?? null,
           gender: gender ?? null,
           original_province: original_province ?? null,
+          image_url: image_url ?? null,
           profession: profession ?? null,
           instagram: instagram ?? null,
           facebook: facebook ?? null,
@@ -239,6 +242,7 @@ export const congressmenRouter = createTRPCRouter({
             startDate,
             endDate: endDate ?? null,
             leader: false,
+            personId: newPerson.id,
           });
       }
 

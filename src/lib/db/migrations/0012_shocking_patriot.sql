@@ -1,0 +1,1 @@
+ALTER TYPE "public"."vote_choice" ADD VALUE 'INCONCLUSIVE';

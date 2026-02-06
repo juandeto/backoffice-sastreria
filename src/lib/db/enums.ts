@@ -7,6 +7,7 @@ export const voteChoiceEnum = pgEnum('vote_choice', [
   'NEGATIVE',
   'ABSTENTION',
   'ABSENT',
+  'INCONCLUSIVE',
 ]);
 
 export const voteResultEnum = pgEnum('vote_result', ['APPROVED', 'REJECTED']);

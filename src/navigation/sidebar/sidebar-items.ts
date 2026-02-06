@@ -103,19 +103,29 @@ export const sidebarItems: NavGroup[] = [
         icon: GraduationCap,
       },
       {
-        title: "Leyes y votaciones",
+        title: "Leyes y proyectos",
         url: "/sections/bills",
         icon: FileText,
       },
       {
+        title: "Sesiones",
+        url: "/sections/sessions",
+        icon: Calendar,
+      },
+      {
         title: "Jefes Politicos",
-        url: "/sections/political-leaders",
+        url: "/sections/leaders",
         icon: Vote,
       },
       {
         title: "Provincias",
         url: "/sections/provinces",
         icon: MapPin,
+      },
+      {
+        title: "Estrategias Oficialistas",
+        url: "/sections/official-vote-preferences",
+        icon: Vote,
       },
     ],
   },

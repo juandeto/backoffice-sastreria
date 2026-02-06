@@ -41,6 +41,7 @@ const formSchema = z.object({
   birthDate: z.string().optional(),
   gender: z.string().optional(),
   original_province: z.string().optional(),
+  image_url: z.string().optional(),
   profession: z.string().optional(),
   instagram: z.string().optional(),
   facebook: z.string().optional(),
@@ -89,6 +90,7 @@ export function AddLegislatorModal({ open, onOpenChange }: AddLegislatorModalPro
       birthDate: "",
       gender: "",
       original_province: "",
+      image_url: "",
       profession: "",
       instagram: "",
       facebook: "",
@@ -113,6 +115,7 @@ export function AddLegislatorModal({ open, onOpenChange }: AddLegislatorModalPro
       birthDate: values.birthDate || undefined,
       gender: values.gender || undefined,
       original_province: values.original_province ? Number.parseInt(values.original_province) : undefined,
+      image_url: values.image_url || undefined,
       profession: values.profession || undefined,
       instagram: values.instagram || undefined,
       facebook: values.facebook || undefined,
@@ -240,6 +243,21 @@ export function AddLegislatorModal({ open, onOpenChange }: AddLegislatorModalPro
                   </FormItem>
                 )}
               />
+
+                {/* Image URL */}
+            <FormField
+              control={form.control}
+              name="image_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Imagen</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://example.com/image.png" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
               <FormField
                 control={form.control}

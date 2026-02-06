@@ -9,6 +9,15 @@ export const votationsRouter = createTRPCRouter({
     return ctx.db.select().from(vote);
   }),
 
+  listBySessionId: protectedProcedure
+    .input(z.object({ sessionId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db
+        .select()
+        .from(vote)
+        .where(eq(vote.sessionId, input.sessionId));
+    }),
+
   getById: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
@@ -25,8 +34,9 @@ export const votationsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        billId: z.string().uuid(),
-        chamber: z.enum(["DEPUTIES", "SENATE"]),
+        sessionId: z.string().uuid(),
+        billId: z.string().uuid().optional(),
+        chamber: z.enum(["DEPUTY", "SENATOR"]),
         voteDate: z.string(),
         voteType: z.enum(["GENERAL", "PARTICULAR", "MOTION"]),
         officialVotePreferenceId: z.string().uuid().optional(),
@@ -35,7 +45,10 @@ export const votationsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const [result] = await ctx.db.insert(vote).values(input).returning();
+      const [result] = await ctx.db.insert(vote).values({
+        ...input,
+        voteDate: new Date(input.voteDate),
+      }).returning();
       return result;
     }),
 
@@ -43,8 +56,9 @@ export const votationsRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.string().uuid(),
+        sessionId: z.string().uuid().optional(),
         billId: z.string().uuid().optional(),
-        chamber: z.enum(["DEPUTIES", "SENATE"]).optional(),
+        chamber: z.enum(["DEPUTY", "SENATOR"]).optional(),
         voteDate: z.string().optional(),
         voteType: z.enum(["GENERAL", "PARTICULAR", "MOTION"]).optional(),
         officialVotePreferenceId: z.string().uuid().optional(),
@@ -53,10 +67,13 @@ export const votationsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, ...data } = input;
+      const { id, voteDate, ...data } = input;
       const [result] = await ctx.db
         .update(vote)
-        .set(data)
+        .set({
+          ...data,
+          ...(voteDate !== undefined && { voteDate: new Date(voteDate) }),
+        })
         .where(eq(vote.id, id))
         .returning();
       if (!result) {

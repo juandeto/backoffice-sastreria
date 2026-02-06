@@ -1,8 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { ExternalLink } from "lucide-react";
-import Link from "next/link";
 
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { RowActions } from "@/components/row-actions";
 
 import { DataTableColumnHeader } from "../../../../../../components/data-table/data-table-column-header";
@@ -36,14 +33,7 @@ export const createCoalitionColumns = ({ onEdit }: CoalitionColumnsProps = {}): 
       <RowActions
         onEdit={onEdit ? () => onEdit(row.original) : undefined}
         menuClassName="w-40"
-        extraItems={
-          <DropdownMenuItem asChild>
-            <Link href={`/sections/parties/coalition/${row.original.id}`}>
-              <ExternalLink className="mr-2 size-4" />
-              Ver más
-            </Link>
-          </DropdownMenuItem>
-        }
+        onViewMore={`/sections/parties/coalition/${row.original.id}`}
       />
     ),
   },

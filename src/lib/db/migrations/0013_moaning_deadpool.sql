@@ -1,0 +1,1 @@
+ALTER TABLE "vote_record" ADD COLUMN "contributed_to_quorum" boolean DEFAULT false;

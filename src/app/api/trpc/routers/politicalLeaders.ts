@@ -53,6 +53,7 @@ export const politicalLeadersRouter = createTRPCRouter({
         role: z.string().min(1),
         type_district: z.string().optional(),
         name_district: z.string().optional(),
+        province: z.number().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -72,10 +73,12 @@ export const politicalLeadersRouter = createTRPCRouter({
         role: z.string().min(1).optional(),
         type_district: z.string().optional(),
         name_district: z.string().optional(),
+        province: z.number().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
+      
       const [result] = await ctx.db
         .update(politicalLeader)
         .set(data)

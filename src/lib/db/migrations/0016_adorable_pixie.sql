@@ -1,0 +1,2 @@
+ALTER TABLE "vote" ADD COLUMN "bill_id" uuid;--> statement-breakpoint
+ALTER TABLE "vote" ADD CONSTRAINT "vote_bill_id_bill_id_fk" FOREIGN KEY ("bill_id") REFERENCES "public"."bill"("id") ON DELETE no action ON UPDATE no action;

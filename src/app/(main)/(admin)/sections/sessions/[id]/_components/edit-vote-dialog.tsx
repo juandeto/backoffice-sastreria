@@ -114,7 +114,7 @@ export function EditVoteDialog({
     resolver: zodResolver(voteFormSchema),
     defaultValues: {
       billId: vote?.billId || undefined,
-      chamber: vote?.chamber || "DEPUTY",
+      chamber: sessionChamber || "DEPUTY",
       voteDate: formatDateForInput(vote?.voteDate),
       voteType: vote?.voteType || "GENERAL",
       officialVotePreferenceId: vote?.officialVotePreferenceId || 'none',
@@ -143,7 +143,7 @@ export function EditVoteDialog({
     updateVoteMutation.mutate({
       id: vote?.id || "",
       billId: data.billId || undefined,
-      chamber: data.chamber,
+      chamber: sessionChamber,
       voteDate: data.voteDate,
       voteType: data.voteType,
       officialVotePreferenceId: data.officialVotePreferenceId,
@@ -214,12 +214,13 @@ export function EditVoteDialog({
               <FormField
                 control={form.control}
                 name="chamber"
+                
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Cámara *</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value}
+                      value={sessionChamber}
                       disabled={true}
                     >
                       <FormControl>

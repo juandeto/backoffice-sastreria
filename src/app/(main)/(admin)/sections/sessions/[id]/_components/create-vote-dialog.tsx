@@ -156,9 +156,9 @@ export function CreateVoteDialog({ sessionId, sessionDate, sessionChamber }: Cre
                   <FormLabel>Ley (Opcional)</FormLabel>
                   <Select
                     onValueChange={(value) => {
-                      field.onChange(value === "" ? undefined : value);
+                      field.onChange(value === "none" ? undefined : value);
                     }}
-                    value={field.value || ""}
+                    value={field.value || "none"}
                     disabled={billsLoading}
                   >
                     <FormControl>
@@ -167,7 +167,7 @@ export function CreateVoteDialog({ sessionId, sessionDate, sessionChamber }: Cre
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Sin ley asociada</SelectItem>
+                      <SelectItem value="none">Sin ley asociada</SelectItem>
                       {bills?.map((bill) => (
                         <SelectItem key={bill.id} value={bill.id}>
                           {bill.title}
@@ -193,7 +193,7 @@ export function CreateVoteDialog({ sessionId, sessionDate, sessionChamber }: Cre
                     <FormLabel>Cámara *</FormLabel>
                     <Select 
                       onValueChange={field.onChange} 
-                      value={field.value}
+                      value={field.value || "none"}
                       disabled={!!sessionChamber}
                     >
                       <FormControl>
@@ -293,9 +293,9 @@ export function CreateVoteDialog({ sessionId, sessionDate, sessionChamber }: Cre
                   <FormLabel>Resultado</FormLabel>
                   <Select
                     onValueChange={(value) => {
-                      field.onChange(value === "" ? undefined : value);
+                      field.onChange(value === "NONE" ? undefined : value);
                     }}
-                    value={field.value || ""}
+                    value={field.value || "NONE"}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -303,7 +303,7 @@ export function CreateVoteDialog({ sessionId, sessionDate, sessionChamber }: Cre
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">No aconteció</SelectItem>
+                      <SelectItem value="NONE">No aconteció</SelectItem>
                       <SelectItem value="APPROVED">Aprobado</SelectItem>
                       <SelectItem value="REJECTED">Rechazado</SelectItem>
                     </SelectContent>

@@ -17,7 +17,7 @@ const voteChoiceSchema = z.enum([
 
 const ruleSchema = z.object({
   choice: voteChoiceSchema,
-  priority: z.number().int().min(1).max(5),
+  value: z.string(),
 });
 
 export const officialVotePreferenceRouter = createTRPCRouter({
@@ -27,9 +27,7 @@ export const officialVotePreferenceRouter = createTRPCRouter({
 
     return preferences.map((pref) => ({
       ...pref,
-      rules: rules
-        .filter((rule) => rule.officialVotePreferenceId === pref.id)
-        .sort((a, b) => a.priority - b.priority),
+      rules: rules.filter((rule) => rule.officialVotePreferenceId === pref.id),
     }));
   }),
 
@@ -54,7 +52,7 @@ export const officialVotePreferenceRouter = createTRPCRouter({
 
       return {
         ...result,
-        rules: rules.sort((a, b) => a.priority - b.priority),
+        rules,
       };
     }),
 
@@ -99,7 +97,7 @@ export const officialVotePreferenceRouter = createTRPCRouter({
       const rulesToInsert = rules.map((rule) => ({
         officialVotePreferenceId: preference.id,
         choice: rule.choice,
-        priority: rule.priority,
+        value: rule.value,
       }));
 
       await ctx.db.insert(officialVotePreferenceRule).values(rulesToInsert);
@@ -116,7 +114,7 @@ export const officialVotePreferenceRouter = createTRPCRouter({
 
       return {
         ...preference,
-        rules: insertedRules.sort((a, b) => a.priority - b.priority),
+        rules: insertedRules,
       };
     }),
 
@@ -178,7 +176,7 @@ export const officialVotePreferenceRouter = createTRPCRouter({
       const rulesToInsert = rules.map((rule) => ({
         officialVotePreferenceId: id,
         choice: rule.choice,
-        priority: rule.priority,
+        value: rule.value,
       }));
 
       await ctx.db.insert(officialVotePreferenceRule).values(rulesToInsert);
@@ -190,7 +188,7 @@ export const officialVotePreferenceRouter = createTRPCRouter({
 
       return {
         ...preference,
-        rules: insertedRules.sort((a, b) => a.priority - b.priority),
+        rules: insertedRules,
       };
     }),
 

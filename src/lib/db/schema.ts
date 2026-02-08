@@ -8,6 +8,7 @@ import {
   uuid,
   date,
   boolean,
+  numeric,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import {
@@ -273,10 +274,10 @@ export const officialVotePreferenceRule = pgTable(
     officialVotePreferenceId: uuid('official_vote_preference_id')
       .notNull()
       .references(() => officialVotePreference.id),
-
-    priority: integer('priority').notNull(), // 1 = highest priority
-
+      
     choice: voteChoiceEnum('choice').notNull(),
+
+    value: numeric('value', { precision: 5, scale: 2 }).notNull(),
   },
 );
 
@@ -295,3 +296,87 @@ export const province = pgTable('province', {
 
 
 export type Province = typeof province.$inferSelect;
+
+// -----------------------------
+// schemas for analytics
+// ------------------------------
+
+export const legislativeMetric = pgTable("legislative_metric", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  personId: uuid("person_id")
+    .notNull()
+    .references(() => person.id),
+  legislativeTermId: uuid("legislative_term_id")
+    .notNull()
+    .references(() => legislativeTerm.id),
+  voteId: uuid("vote_id")
+    .notNull()
+    .references(() => vote.id),
+  chamber: chamberEnum("chamber").notNull(),
+  // --- Core ---
+  paeScore: numeric("pae_score", { precision: 5, scale: 2 }).notNull(),
+  // 1.00 / 0.75 / 0.25 / 0.00
+  ipScore: numeric("ip_score", { precision: 5, scale: 2 }).notNull(),
+  // 1 = present, 0 = absent
+  isInconclusive: boolean("is_inconclusive").default(false),
+  calculatedAt: timestamp("calculated_at").defaultNow(),
+  calculationVersion: text("calculation_version").notNull(),
+  sessionId: uuid("session_id")
+  .notNull()
+  .references(() => session.id),
+});
+
+export const chamberMetric = pgTable("chamber_metric", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  chamber: chamberEnum("chamber").notNull(),
+  iao: numeric("iao", { precision: 5, scale: 2 }).notNull(),
+  calculatedAt: timestamp("calculated_at").defaultNow(),
+  sessionId: uuid('session_id').notNull().references(() => session.id),
+  calculationVersion: text("calculation_version").notNull()
+});
+
+export const legislativeTermMetric = pgTable(
+  "legislative_term_metric",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    personId: uuid("person_id")
+      .notNull()
+      .references(() => person.id),
+
+    legislativeTermId: uuid("legislative_term_id")
+      .notNull()
+      .references(() => legislativeTerm.id),
+
+    chamber: chamberEnum("chamber").notNull(),
+
+    // --- Aggregates ---
+    paeSum: numeric("pae_sum", { precision: 10, scale: 4 }).notNull(),
+    paeCount: integer("pae_count").notNull(),
+
+    ipSum: numeric("ip_sum", { precision: 10, scale: 4 }).notNull(),
+    ipCount: integer("ip_count").notNull(),
+
+    // --- Derived (optional but useful) ---
+    paeAverage: numeric("pae_average", { precision: 5, scale: 2 }).notNull(),
+    ipAverage: numeric("ip_average", { precision: 5, scale: 2 }).notNull(),
+
+    updatedAt: timestamp("updated_at").defaultNow(),
+  }
+);
+
+
+
+
+// export const legislativeConduct = pgTable("legislative_conduct", {
+//   id: uuid("id").primaryKey().defaultRandom(),
+//   personId: uuid("person_id")
+//     .notNull()
+//     .references(() => person.id),
+//   legislativeTermId: uuid("legislative_term_id")
+//     .notNull()
+//     .references(() => legislativeTerm.id),
+//   conductType: text("conduct_type").notNull(),
+//   calculatedAt: timestamp("calculated_at").defaultNow(),
+
+// });

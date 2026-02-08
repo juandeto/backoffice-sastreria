@@ -1,5 +1,3 @@
-import type { inferRouterOutputs } from "@trpc/server";
-import type { AppRouter } from "@/app/api/trpc/router";
+import type { RouterOutputs } from "@/app/api/trpc/react";
 
-type RouterOutputs = inferRouterOutputs<AppRouter>;
 export type Bill = RouterOutputs["bills"]["list"][number];

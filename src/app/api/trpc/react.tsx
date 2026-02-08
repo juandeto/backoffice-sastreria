@@ -8,6 +8,9 @@ import superjson from "superjson";
 import type { AppRouter } from "./router";
 
 export const api = createTRPCReact<AppRouter>();
+import type { inferRouterOutputs } from "@trpc/server";
+
+export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
 function getBaseUrl() {
   if (typeof window !== "undefined") return "";

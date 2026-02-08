@@ -32,15 +32,15 @@ export const createStrategyColumns = ({
     cell: ({ row }) => row.original.description ?? "—",
   },
   {
-    id: "priorities",
-    header: "Prioridades",
+    id: "values",
+    header: "Valores",
     cell: ({ row }) => {
       const rules = row.original.rules ?? [];
       return (
         <div className="flex flex-wrap gap-1">
-          {rules.map((rule, index) => (
+          {rules.map((rule) => (
             <Badge key={rule.id} variant="outline" className="text-xs">
-              {index + 1}. {getVoteChoiceLabel(rule.choice)}
+              {getVoteChoiceLabel(rule.choice)}: {rule.value ?? "0"}
             </Badge>
           ))}
         </div>

@@ -3,6 +3,7 @@ import { eq, desc } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../init";
 import { session } from "@/lib/db/schema";
+import { calculateChamberMetric } from "@/lib/services/metrics.service";
 
 export const sessionsRouter = createTRPCRouter({
   list: protectedProcedure.query(async ({ ctx }) => {
@@ -77,6 +78,17 @@ export const sessionsRouter = createTRPCRouter({
       if (!result) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Session not found" });
       }
+      
+      // Calculate chamber metric when session is closed (wrap in try/catch)
+      if (result.status === "closed") {
+        try {
+          await calculateChamberMetric(ctx.db, id, result.chamber);
+        } catch (error) {
+          // Log error but don't fail the mutation
+          console.error("Failed to calculate chamber metric:", error);
+        }
+      }
+      
       return result;
     }),
 

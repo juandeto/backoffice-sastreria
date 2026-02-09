@@ -10,6 +10,7 @@ import {
   block_membership,
   block,
 } from "@/lib/db/schema";
+import { calculateLegislativeMetric } from "@/lib/services/metrics.service";
 
 export const voteRecordsRouter = createTRPCRouter({
   list: protectedProcedure.query(async ({ ctx }) => {
@@ -51,6 +52,18 @@ export const voteRecordsRouter = createTRPCRouter({
         .insert(voteRecord)
         .values(input)
         .returning();
+      
+      // Calculate metrics (wrap in try/catch to avoid breaking vote saving)
+      try {
+        await calculateLegislativeMetric(ctx.db, {
+          voteId: input.voteId,
+          legislativeTermId: input.legislativeTermId,
+        });
+      } catch (error) {
+        // Log error but don't fail the mutation
+        console.error("Failed to calculate legislative metric:", error);
+      }
+      
       return result;
     }),
 
@@ -84,6 +97,18 @@ export const voteRecordsRouter = createTRPCRouter({
           message: "Vote record not found",
         });
       }
+      
+      // Calculate metrics (wrap in try/catch to avoid breaking vote saving)
+      try {
+        await calculateLegislativeMetric(ctx.db, {
+          voteId: result.voteId,
+          legislativeTermId: result.legislativeTermId,
+        });
+      } catch (error) {
+        // Log error but don't fail the mutation
+        console.error("Failed to calculate legislative metric:", error);
+      }
+      
       return result;
     }),
 
@@ -212,6 +237,17 @@ export const voteRecordsRouter = createTRPCRouter({
           if (created) {
             results.push(created);
           }
+        }
+
+        // Calculate metrics for each record (wrap in try/catch to avoid breaking vote saving)
+        try {
+          await calculateLegislativeMetric(ctx.db, {
+            voteId: input.voteId,
+            legislativeTermId: record.legislativeTermId,
+          });
+        } catch (error) {
+          // Log error but don't fail the mutation
+          console.error("Failed to calculate legislative metric:", error);
         }
       }
 

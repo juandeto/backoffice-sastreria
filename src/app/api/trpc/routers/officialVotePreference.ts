@@ -6,6 +6,7 @@ import {
   officialVotePreference,
   officialVotePreferenceRule,
 } from "@/lib/db/schema";
+import { recalculateMetricsForPreference } from "@/lib/services/metrics.service";
 
 const voteChoiceSchema = z.enum([
   "POSITIVE",
@@ -185,6 +186,14 @@ export const officialVotePreferenceRouter = createTRPCRouter({
         .select()
         .from(officialVotePreferenceRule)
         .where(eq(officialVotePreferenceRule.officialVotePreferenceId, id));
+
+      // Recalculate metrics for all votes using this preference (wrap in try/catch)
+      try {
+        await recalculateMetricsForPreference(ctx.db, id);
+      } catch (error) {
+        // Log error but don't fail the mutation
+        console.error("Failed to recalculate metrics for preference:", error);
+      }
 
       return {
         ...preference,

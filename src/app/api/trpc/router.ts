@@ -14,6 +14,7 @@ import { congressmenRouter } from "./routers/congressmen";
 import { provincesRouter } from "./routers/provinces";
 import { blockMembershipsRouter } from "./routers/block_memberships";
 import { sessionsRouter } from "./routers/sessions";
+import { metricsRouter } from "./routers/metrics";
 
 export const appRouter = createTRPCRouter({
   persons: personsRouter,
@@ -31,6 +32,7 @@ export const appRouter = createTRPCRouter({
   provinces: provincesRouter,
   blockMemberships: blockMembershipsRouter,
   sessions: sessionsRouter,
+  metrics: metricsRouter,
 });
 
 export type AppRouter = typeof appRouter;

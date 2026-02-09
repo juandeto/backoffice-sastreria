@@ -38,61 +38,64 @@ const createLegislatorSchema = z.object({
 });
 
 export const congressmenRouter = createTRPCRouter({
-  list: protectedProcedure.query(async ({ ctx }) => {
-    // Subquery to get the latest legislative term for each person
-    const latestTermSubquery = ctx.db
-      .select({
-        personId: legislativeTerm.personId,
-        latestStartDate: sql<string>`max(${legislativeTerm.startDate})`.as("latest_start_date"),
-      })
-      .from(legislativeTerm)
-      .groupBy(legislativeTerm.personId)
-      .as("latest_term_sub");
+  list: protectedProcedure
+    .input(z.object({ chamber: z.enum(["DEPUTY", "SENATOR"]) }))
+    .query(async ({ ctx, input }) => {
+      // Subquery to get the latest legislative term for each person
+      const latestTermSubquery = ctx.db
+        .select({
+          personId: legislativeTerm.personId,
+          latestStartDate: sql<string>`max(${legislativeTerm.startDate})`.as("latest_start_date"),
+        })
+        .from(legislativeTerm)
+        .groupBy(legislativeTerm.personId)
+        .as("latest_term_sub");
 
-    // Main query joining person with their latest term and related info
-    const results = await ctx.db
-      .select({
-        id: person.id,
-        firstName: person.firstName,
-        lastName: person.lastName,
-        chamber: legislativeTerm.chamber,
-        termStartDate: legislativeTerm.startDate,
-        termEndDate: legislativeTerm.endDate,
-        provinceName: province.name,
-        blockName: block.name,
-        blockColor: block.color,
-      })
-      .from(person)
-      .innerJoin(
-        legislativeTerm,
-        eq(person.id, legislativeTerm.personId)
-      )
-      .innerJoin(
-        latestTermSubquery,
-        and(
-          eq(legislativeTerm.personId, latestTermSubquery.personId),
-          eq(legislativeTerm.startDate, latestTermSubquery.latestStartDate)
+      // Main query joining person with their latest term and related info
+      const results = await ctx.db
+        .select({
+          id: person.id,
+          firstName: person.firstName,
+          lastName: person.lastName,
+          chamber: legislativeTerm.chamber,
+          termStartDate: legislativeTerm.startDate,
+          termEndDate: legislativeTerm.endDate,
+          provinceName: province.name,
+          blockName: block.name,
+          blockColor: block.color,
+        })
+        .from(person)
+        .innerJoin(
+          legislativeTerm,
+          eq(person.id, legislativeTerm.personId)
         )
-      )
-      .leftJoin(
-        province,
-        eq(legislativeTerm.province, province.provinceId)
-      )
-      .leftJoin(
-        block_membership,
-        and(
-          eq(block_membership.legislativeTermId, legislativeTerm.id),
-          sql`${block_membership.endDate} IS NULL OR ${block_membership.endDate} > now()`
+        .innerJoin(
+          latestTermSubquery,
+          and(
+            eq(legislativeTerm.personId, latestTermSubquery.personId),
+            eq(legislativeTerm.startDate, latestTermSubquery.latestStartDate)
+          )
         )
-      )
-      .leftJoin(
-        block,
-        eq(block_membership.blockId, block.id)
-      )
-      .orderBy(person.lastName, person.firstName);
+        .leftJoin(
+          province,
+          eq(legislativeTerm.province, province.provinceId)
+        )
+        .leftJoin(
+          block_membership,
+          and(
+            eq(block_membership.legislativeTermId, legislativeTerm.id),
+            sql`${block_membership.endDate} IS NULL OR ${block_membership.endDate} > now()`
+          )
+        )
+        .leftJoin(
+          block,
+          eq(block_membership.blockId, block.id)
+        )
+        .where(eq(legislativeTerm.chamber, input.chamber))
+        .orderBy(person.lastName, person.firstName);
 
-    return results;
-  }),
+      return results;
+    }),
 
   getById: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))

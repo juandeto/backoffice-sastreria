@@ -4,22 +4,22 @@ overview: "Implement a metrics calculation service with three metric types: `leg
 todos:
   - id: create-metrics-service
     content: Create src/lib/services/metrics.service.ts with core calculation functions
-    status: pending
+    status: completed
   - id: integrate-vote-records
     content: Add calculateLegislativeMetric calls to voteRecords create/update/bulkUpsert
-    status: pending
+    status: completed
   - id: integrate-ovp
     content: Add recalculateMetricsForPreference call to officialVotePreference.updateWithRules
-    status: pending
+    status: completed
   - id: integrate-session-close
     content: Add calculateChamberMetric call to sessions.update on status=closed
-    status: pending
+    status: completed
   - id: create-metrics-router
     content: Create read-only metrics tRPC router and register in root router
-    status: pending
+    status: completed
   - id: create-db-indexes
     content: Create Drizzle migration for performance indexes on metric tables
-    status: pending
+    status: completed
 ---
 
 # Metrics Service Implementation Plan
